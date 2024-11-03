@@ -2,6 +2,6 @@
 #define BENCH1_H
 #include <stdio.h>
 
-void sort_array(FILE *filestream);
+void simple_merging_sort(char *name);
 
 #endif

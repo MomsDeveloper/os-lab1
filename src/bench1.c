@@ -72,7 +72,7 @@ void simple_merging_sort(char *name)
         fseek(f, 0, SEEK_END);
         kol = ftell(f) / 4;
         rewind(f);
-        printf("%d", kol);
+        printf("File len is %d symbols\n", kol);
     }
 
     k = 1;
@@ -105,20 +105,34 @@ void simple_merging_sort(char *name)
         f = fopen(name, "wb");
         f1 = fopen("data/f1.bin", "rb");
         f2 = fopen("data/f2.bin", "rb");
-        
+
         merge(f, f1, f2, k, a1, a2);
-        
+
         fclose(f2);
         fclose(f1);
         fclose(f);
-        
-        k = k*2;
+
+        k = k * 2;
     }
+
+    remove("data/f1.bin");
+    remove("data/f2.bin");
 }
 
-int main()
-{
+int main(int argc, char *argv[])
+{   
+    if (argc != 2)
+    {
+        printf("Usage: %s <number_of_iterations>\n", argv[0]);
+        return 1;
+    }
+    
     char *filename = "./data/myfile.bin";
-    simple_merging_sort(filename);
+    int number_of_iterations = atoi(argv[1]);
+
+    for (int i = 0; i < number_of_iterations; i++)
+    {
+        simple_merging_sort(filename);
+    }
     return 0;
 }
