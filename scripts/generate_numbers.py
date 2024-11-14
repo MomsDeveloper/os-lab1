@@ -17,6 +17,6 @@ with open(filename, 'wb+') as f:
 
 print(f'File {filename} was created')
 
-with open(filename, 'rb') as f:
-    print(int.from_bytes(f.read(symbol_storage), 'little'))
-    print(int.from_bytes(f.read(symbol_storage), 'little'))
+# with open(filename, 'rb') as f:
+#     print(int.from_bytes(f.read(symbol_storage), 'little'))
+#     print(int.from_bytes(f.read(symbol_storage), 'little'))

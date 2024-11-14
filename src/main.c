@@ -10,9 +10,8 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    double time_spent = 0.0;
-    clock_t begin, end;
-    begin = clock();
+    struct timespec begin, end;
+    clock_gettime(CLOCK_MONOTONIC, &begin);
 
     pid_t pid = vfork(); 
 
@@ -34,8 +33,10 @@ int main(int argc, char *argv[]) {
     } else { 
         int status;
         waitpid(pid, &status, 0); 
-        end = clock();
-        time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+        clock_gettime(CLOCK_MONOTONIC, &end); 
+
+        double time_spent = (end.tv_sec - begin.tv_sec) + 
+                            (end.tv_nsec - begin.tv_nsec) / 1e9;
         printf("Execution time: %f seconds\n", time_spent);
         printf("Command '%s' executed.\n", argv[1]);
     }   

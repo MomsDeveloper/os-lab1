@@ -4,20 +4,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-void remove_duplicates(int *arr, int kol)
+
+
+void remove_duplicates(int *arr, int *kol)
 {
-    int i, j, k;
-    for (i = 0; i < kol; i++)
+    size_t i, j, k;
+    for (i = 0; i < *kol; i++)
     {
-        for (j = i + 1; j < kol;)
+        for (j = i + 1; j < *kol;)
         {
             if (arr[i] == arr[j])
             {
-                for (k = j; k < kol; k++)
+                for (k = j; k < *kol; k++)
                 {
                     arr[k] = arr[k + 1];
                 }
-                kol--;
+                (*kol)--;
             }
             else
             {
@@ -27,59 +29,42 @@ void remove_duplicates(int *arr, int kol)
     }
 }
 
-void deduplicate_array(char *name)
+void generate_array(int *arr, int *kol)
 {
-    int kol = 0;
-
-    FILE *f;
-    if ((f = fopen(name, "rb")) == NULL)
+    for (size_t i = 0; i < *kol; i++)
     {
-        printf("Such file doesn't exist");
+        arr[i] = rand() % 100;
     }
-    else
-    {
-        fseek(f, 0, SEEK_END);
-        kol = ftell(f) / 4;
-        rewind(f);
-        printf("File len is %d symbols\n", kol);
-    }
-
-    int *arr = (int *)malloc(kol * sizeof(int));
-    if (arr == NULL)
-    {
-        printf("Memory allocation error\n");
-        exit(1);
-    }
-
-    fread(arr, sizeof(int), kol, f);
-    fclose(f);
-
-    remove_duplicates(arr, kol);
-
-    f = fopen(name, "wb");
-    fwrite(arr, sizeof(int), kol, f);
-    fclose(f);
-
-    free(arr);
-    
-
 }
 
+#ifdef BENCH2_MAIN
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
+    if (argc != 3)
     {
-        printf("Usage: %s <number_of_iterations>\n", argv[0]);
+        printf("Usage: %s <number_of_iterations> <number_of_kols>\n", argv[0]);
         return 1;
     }
 
-    char *filename = "./data/mydupfile.bin";
+    size_t kol = atoi(argv[2]);
     int number_of_iterations = atoi(argv[1]);
-
-    for (int i = 0; i < number_of_iterations; i++)
+    
+    int *arr = (int *)malloc(kol * sizeof(int));
+    if (arr == NULL)
     {
-        deduplicate_array(filename);
+        perror("Failed to allocate memory");
+        return 1;
     }
 
+    for (int i = 0; i < number_of_iterations; i++)
+    {   
+        generate_array(arr, &kol);
+        size_t temp_kol = kol;
+        remove_duplicates(arr, &temp_kol);
+        printf("Iteration %d done\n", i);
+    }   
+
+    free(arr);
     return 0;
 }
+#endif

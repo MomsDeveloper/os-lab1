@@ -61,26 +61,33 @@ void simple_merging_sort(char *name)
 {
     int a1, a2, kol, k;
     kol = 0;
+    
 
     FILE *f, *f1, *f2;
-    if ((f = fopen("data/myfile.bin", "rb")) == NULL)
+    char f1_name[256];
+    char f2_name[256];
+
+    snprintf(f1_name, sizeof(f1_name), "%s_f1.bin", name);
+    snprintf(f2_name, sizeof(f2_name), "%s_f2.bin", name);
+
+    if ((f = fopen(name, "rb")) == NULL)
     {
-        printf("Such file doesn't exist");
+        printf("Such file doesn't exist %s\n", name);
     }
     else
     {
         fseek(f, 0, SEEK_END);
         kol = ftell(f) / 4;
         rewind(f);
-        printf("File len is %d symbols\n", kol);
     }
 
     k = 1;
     while (k < kol)
     {
         f = fopen(name, "rb");
-        f1 = fopen("data/f1.bin", "wb");
-        f2 = fopen("data/f2.bin", "wb");
+        f1 = fopen(f1_name, "wb");
+        f2 = fopen(f2_name, "wb");
+
         if (!feof(f))
         {
             fread(&a1, sizeof(int), 1, f);
@@ -103,8 +110,8 @@ void simple_merging_sort(char *name)
         fclose(f);
 
         f = fopen(name, "wb");
-        f1 = fopen("data/f1.bin", "rb");
-        f2 = fopen("data/f2.bin", "rb");
+        f1 = fopen(f1_name, "rb");
+        f2 = fopen(f2_name, "rb");
 
         merge(f, f1, f2, k, a1, a2);
 
@@ -115,24 +122,29 @@ void simple_merging_sort(char *name)
         k = k * 2;
     }
 
-    remove("data/f1.bin");
-    remove("data/f2.bin");
+    remove(f1_name);
+    remove(f2_name);
+
+
 }
 
+#ifdef BENCH1_MAIN
 int main(int argc, char *argv[])
 {   
-    if (argc != 2)
+    if (argc != 3)
     {
-        printf("Usage: %s <number_of_iterations>\n", argv[0]);
+        printf("Usage: %s <number_of_iterations> <file_name>\n", argv[0]);
         return 1;
     }
-    
-    char *filename = "./data/myfile.bin";
+
+    char *filename = argv[2];
     int number_of_iterations = atoi(argv[1]);
 
     for (int i = 0; i < number_of_iterations; i++)
     {
         simple_merging_sort(filename);
+        printf("Iteration %d done\n", i);
     }
     return 0;
 }
+#endif // BENCH1_MAIN
