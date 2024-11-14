@@ -24,8 +24,8 @@ jobs:
 
       - name: Run Linter
         run: |
-          clang-format --dry-run --Werror src/**/*.c
-          clang-format --dry-run --Werror include/**/*.h
+          clang-format --dry-run --Werror src/*.c
+          clang-format --dry-run --Werror include/*.h
 
       - name: Run Formatter
         run: |
