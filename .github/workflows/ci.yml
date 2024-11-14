@@ -20,21 +20,18 @@ jobs:
       - name: Set up dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
+          sudo apt-get install -y build-essential clang clang-format
 
       - name: Run Linter
         run: |
-          # Example for C project using clang-format
           clang-format --dry-run --Werror src/**/*.c
           clang-format --dry-run --Werror include/**/*.h
 
       - name: Run Formatter
         run: |
-          # Automatically format code using clang-format
           clang-format -i src/**/*.c
           clang-format -i include/**/*.h
 
-      # Build the project
       - name: Build Project
         run: |
           ./scripts/build.sh
