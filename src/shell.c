@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
-#include <string.h>
 
 void execute_command(char *command, char *args[]) {
   struct timespec begin, end;
   clock_gettime(CLOCK_MONOTONIC, &begin);
-  
+
   pid_t pid = vfork();
 
   if (pid < 0) {

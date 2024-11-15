@@ -1,5 +1,5 @@
-#include "ema-sort-int.h"
 #include "dedup.h"
+#include "ema-sort-int.h"
 #include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
