@@ -3,16 +3,12 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    fprintf(stderr, "Not enough arguments.");
-    exit(EXIT_FAILURE);
-  }
-
+void execute_command(char *command, char *args[]) {
   struct timespec begin, end;
   clock_gettime(CLOCK_MONOTONIC, &begin);
-
+  
   pid_t pid = vfork();
 
   if (pid < 0) {
@@ -21,24 +17,47 @@ int main(int argc, char *argv[]) {
   }
 
   if (pid == 0) {
-    char *args[argc];
-    for (int i = 1; i < argc; i++) {
-      args[i - 1] = argv[i];
-    }
-    args[argc - 1] = NULL;
-
-    execvp(args[0], args);
+    execvp(command, args);
     perror("exec failed");
     _exit(EXIT_FAILURE);
   } else {
     int status;
     waitpid(pid, &status, 0);
-    clock_gettime(CLOCK_MONOTONIC, &end);
 
+    clock_gettime(CLOCK_MONOTONIC, &end);
     double time_spent =
         (end.tv_sec - begin.tv_sec) + (end.tv_nsec - begin.tv_nsec) / 1e9;
     printf("Execution time: %f seconds\n", time_spent);
-    printf("Command '%s' executed.\n", argv[1]);
+  }
+}
+
+int main() {
+  char input[256];
+
+  while (1) {
+    printf("> ");
+    if (fgets(input, sizeof(input), stdin) == NULL) {
+      perror("Error reading input");
+      continue;
+    }
+
+    input[strcspn(input, "\n")] = '\0';
+
+    if (strcmp(input, "exit") == 0) {
+      break;
+    }
+
+    char *args[50];
+    char *token = strtok(input, " ");
+    int i = 0;
+
+    while (token != NULL) {
+      args[i++] = token;
+      token = strtok(NULL, " ");
+    }
+    args[i] = NULL;
+
+    execute_command(args[0], args);
   }
 
   return 0;
