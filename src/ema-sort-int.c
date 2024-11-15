@@ -1,4 +1,4 @@
-#include "bench1.h"
+#include "ema-sort-int.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

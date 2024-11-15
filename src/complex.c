@@ -1,5 +1,5 @@
-#include "bench1.h"
-#include "bench2.h"
+#include "ema-sort-int.h"
+#include "dedup.h"
 #include <errno.h>
 #include <pthread.h>
 #include <stdio.h>

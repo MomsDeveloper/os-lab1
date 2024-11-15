@@ -1,4 +1,4 @@
-#include "bench2.h"
+#include "dedup.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -20,10 +20,10 @@ do
         filename="./data/file_${i}_${j}.bin"
         filenames+=("$filename")
 
-        python3 scripts/generate_numbers.py 1024 "$filename"&
+        python3 utils/generate_numbers.py 1024 "$filename"&
     done
 
-    ./bin/bench3 $t 3000 "${filenames[@]}"&
+    ./bin/complex $t 3000 "${filenames[@]}"&
 
     echo "Started $i process"
 
