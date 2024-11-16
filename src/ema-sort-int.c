@@ -6,6 +6,32 @@
 #include <string.h>
 #include <unistd.h>
 
+int open_file(char *name, int flags, mode_t permissions) {
+  int f;
+#ifdef __APPLE__
+  if (permissions == 0) {
+    f = open(name, flags);
+
+  } else {
+    f = open(name, flags, permissions);
+  }
+  fcntl(f, F_NOCACHE, 1);
+#elif defined(__linux__)
+  flags |= O_DIRECT;
+  if (permissions == 0) {
+    f = open(name, flags);
+
+  } else {
+    f = open(name, flags, permissions);
+  }
+#endif
+  if (f == -1) {
+    perror("Failed to open file");
+    return -1;
+  }
+  return f;
+}
+
 void merge(int f, int f1, int f2, int k, int a1, int a2) {
   int i, j;
 
@@ -58,11 +84,7 @@ void simple_merging_sort(char *name) {
   snprintf(f1_name, sizeof(f1_name), "%s_f1.bin", name);
   snprintf(f2_name, sizeof(f2_name), "%s_f2.bin", name);
 
-  f = open(name, O_RDONLY | O_SYNC);
-  if (f == -1) {
-    printf("Such file doesn't exist %s\n", name);
-    return;
-  }
+  f = open_file(name, O_RDONLY, 0);
 
   off_t size = lseek(f, 0, SEEK_END);
   kol = size / sizeof(int);
@@ -70,9 +92,10 @@ void simple_merging_sort(char *name) {
 
   k = 1;
   while (k < kol) {
-    f = open(name, O_RDONLY | O_SYNC);
-    f1 = open(f1_name, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0644);
-    f2 = open(f2_name, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0644);
+
+    f = open_file(name, O_RDONLY, 0);
+    f1 = open_file(f1_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    f2 = open_file(f2_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     ssize_t read_result = read(f, &a1, sizeof(int));
 
@@ -90,9 +113,9 @@ void simple_merging_sort(char *name) {
     close(f2);
     close(f);
 
-    f = open(name, O_WRONLY | O_SYNC);
-    f1 = open(f1_name, O_RDONLY | O_SYNC);
-    f2 = open(f2_name, O_RDONLY | O_SYNC);
+    f = open_file(name, O_WRONLY, 0);
+    f1 = open_file(f1_name, O_RDONLY, 0);
+    f2 = open_file(f2_name, O_RDONLY, 0);
 
     merge(f, f1, f2, k, a1, a2);
 
