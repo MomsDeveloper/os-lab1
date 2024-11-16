@@ -16,7 +16,7 @@ int open_file(char *name, int flags, mode_t permissions) {
   }
   fcntl(f, F_NOCACHE, 1);
 #elif defined(__linux__)
-  #define _GNU_SOURCE
+#define _GNU_SOURCE
   flags |= O_DIRECT;
   if (permissions == 0) {
     f = open(name, flags);
