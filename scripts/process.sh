@@ -13,10 +13,10 @@ do
     filename="./data/file_$i.bin"
 
     # generate random numbers
-    python3 utils/generate_numbers.py 1024 "$filename"&
+    python3 utils/generate_numbers.py 1 "$filename"&
 
-    # ./bin/dedup 2 102400&
-    ./bin/ema-sort-int 3 "$filename"&
+    # ./bin/dedup 2 1024000&
+    ./bin/ema-sort-int 1 "$filename"&
 
     echo "Started process for $filename"
 

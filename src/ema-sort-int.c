@@ -1,49 +1,49 @@
 #include "ema-sort-int.h"
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-void merge(FILE *f, FILE *f1, FILE *f2, int k, int a1, int a2) {
+void merge(int f, int f1, int f2, int k, int a1, int a2) {
   int i, j;
 
-  if (!feof(f1))
-    fread(&a1, sizeof(int), 1, f1);
-  if (!feof(f2))
-    fread(&a2, sizeof(int), 1, f2);
+  ssize_t read_result_f1 = read(f1, &a1, sizeof(int));
+  ssize_t read_result_f2 = read(f2, &a2, sizeof(int));
 
-  while (!feof(f1) && !feof(f2)) {
+  while (read_result_f1 > 0 && read_result_f2 > 0) {
     i = 0;
     j = 0;
-    while (i < k && j < k && !feof(f1) && !feof(f2)) {
+    while (i < k && j < k && read_result_f1 > 0 && read_result_f2 > 0) {
       if (a1 < a2) {
-        fwrite(&a1, sizeof(int), 1, f);
-        fread(&a1, sizeof(int), 1, f1);
+        write(f, &a1, sizeof(int));
+        read_result_f1 = read(f1, &a1, sizeof(int));
         i++;
       } else {
-        fwrite(&a2, sizeof(int), 1, f);
-        fread(&a2, sizeof(int), 1, f2);
+        write(f, &a2, sizeof(int));
+        read_result_f2 = read(f2, &a2, sizeof(int));
         j++;
       }
     }
-    while (i < k && !feof(f1)) {
-      fwrite(&a1, sizeof(int), 1, f);
-      fread(&a1, sizeof(int), 1, f1);
+    while (i < k && read_result_f1 > 0) {
+      write(f, &a1, sizeof(int));
+      read_result_f1 = read(f1, &a1, sizeof(int));
       i++;
     }
-    while (j < k && !feof(f2)) {
-      fwrite(&a2, sizeof(int), 1, f);
-      fread(&a2, sizeof(int), 1, f2);
+    while (j < k && read_result_f2 > 0) {
+      write(f, &a2, sizeof(int));
+      read_result_f2 = read(f2, &a2, sizeof(int));
       j++;
     }
   }
-  while (!feof(f1)) {
-    fwrite(&a1, sizeof(int), 1, f);
-    fread(&a1, sizeof(int), 1, f1);
+  while (read_result_f1 > 0) {
+    write(f, &a1, sizeof(int));
+    read_result_f1 = read(f1, &a1, sizeof(int));
   }
-  while (!feof(f2)) {
-    fwrite(&a2, sizeof(int), 1, f);
-    fread(&a2, sizeof(int), 1, f2);
+  while (read_result_f2 > 0) {
+    write(f, &a2, sizeof(int));
+    read_result_f2 = read(f2, &a2, sizeof(int));
   }
 }
 
@@ -51,53 +51,67 @@ void simple_merging_sort(char *name) {
   int a1, a2, kol, k;
   kol = 0;
 
-  FILE *f, *f1, *f2;
+  int f, f1, f2;
   char f1_name[256];
   char f2_name[256];
 
   snprintf(f1_name, sizeof(f1_name), "%s_f1.bin", name);
   snprintf(f2_name, sizeof(f2_name), "%s_f2.bin", name);
 
-  if ((f = fopen(name, "rb")) == NULL) {
+  f = open(name, O_RDONLY);
+  if (f == -1) {
     printf("Such file doesn't exist %s\n", name);
-  } else {
-    fseek(f, 0, SEEK_END);
-    kol = ftell(f) / 4;
-    rewind(f);
+    return;
   }
+
+  // Disable caching
+  fcntl(f, F_NOCACHE, 1);
+
+  off_t size = lseek(f, 0, SEEK_END);
+  kol = size / sizeof(int);
+  lseek(f, 0, SEEK_SET);
 
   k = 1;
   while (k < kol) {
-    f = fopen(name, "rb");
-    f1 = fopen(f1_name, "wb");
-    f2 = fopen(f2_name, "wb");
+    f = open(name, O_RDONLY);
+    f1 = open(f1_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    f2 = open(f2_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-    if (!feof(f)) {
-      fread(&a1, sizeof(int), 1, f);
-    }
-    while (!feof(f)) {
-      for (int i = 0; i < k && !feof(f); i++) {
-        fwrite(&a1, sizeof(int), 1, f1);
-        fread(&a1, sizeof(int), 1, f);
-      }
-      for (int j = 0; j < k && !feof(f); j++) {
-        fwrite(&a1, sizeof(int), 1, f2);
-        fread(&a1, sizeof(int), 1, f);
-      }
-    }
-    fclose(f1);
-    fclose(f2);
-    fclose(f);
+    // Disable caching for the files
+    fcntl(f, F_NOCACHE, 1);
+    fcntl(f1, F_NOCACHE, 1);
+    fcntl(f2, F_NOCACHE, 1);
 
-    f = fopen(name, "wb");
-    f1 = fopen(f1_name, "rb");
-    f2 = fopen(f2_name, "rb");
+    ssize_t read_result = read(f, &a1, sizeof(int));
+
+    while (read_result > 0) {
+      for (int i = 0; i < k && read_result > 0; i++) {
+        write(f1, &a1, sizeof(int));
+        read_result = read(f, &a1, sizeof(int));
+      }
+      for (int j = 0; j < k && read_result > 0; j++) {
+        write(f2, &a1, sizeof(int));
+        read_result = read(f, &a1, sizeof(int));
+      }
+    }
+    close(f1);
+    close(f2);
+    close(f);
+
+    f = open(name, O_WRONLY);
+    f1 = open(f1_name, O_RDONLY);
+    f2 = open(f2_name, O_RDONLY);
+
+    // Disable caching for the files
+    fcntl(f, F_NOCACHE, 1);
+    fcntl(f1, F_NOCACHE, 1);
+    fcntl(f2, F_NOCACHE, 1);
 
     merge(f, f1, f2, k, a1, a2);
 
-    fclose(f2);
-    fclose(f1);
-    fclose(f);
+    close(f2);
+    close(f1);
+    close(f);
 
     k = k * 2;
   }
