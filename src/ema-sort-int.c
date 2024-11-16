@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "ema-sort-int.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -5,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#define _GNU_SOURCE
 
 int open_file(char *name, int flags, mode_t permissions) {
   int f;
