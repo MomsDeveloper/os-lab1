@@ -58,14 +58,11 @@ void simple_merging_sort(char *name) {
   snprintf(f1_name, sizeof(f1_name), "%s_f1.bin", name);
   snprintf(f2_name, sizeof(f2_name), "%s_f2.bin", name);
 
-  f = open(name, O_RDONLY);
+  f = open(name, O_RDONLY | O_SYNC);
   if (f == -1) {
     printf("Such file doesn't exist %s\n", name);
     return;
   }
-
-  // Disable caching
-  fcntl(f, F_NOCACHE, 1);
 
   off_t size = lseek(f, 0, SEEK_END);
   kol = size / sizeof(int);
@@ -73,14 +70,9 @@ void simple_merging_sort(char *name) {
 
   k = 1;
   while (k < kol) {
-    f = open(name, O_RDONLY);
-    f1 = open(f1_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    f2 = open(f2_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-
-    // Disable caching for the files
-    fcntl(f, F_NOCACHE, 1);
-    fcntl(f1, F_NOCACHE, 1);
-    fcntl(f2, F_NOCACHE, 1);
+    f = open(name, O_RDONLY | O_SYNC);
+    f1 = open(f1_name, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0644);
+    f2 = open(f2_name, O_WRONLY | O_CREAT | O_TRUNC | O_SYNC, 0644);
 
     ssize_t read_result = read(f, &a1, sizeof(int));
 
@@ -98,14 +90,9 @@ void simple_merging_sort(char *name) {
     close(f2);
     close(f);
 
-    f = open(name, O_WRONLY);
-    f1 = open(f1_name, O_RDONLY);
-    f2 = open(f2_name, O_RDONLY);
-
-    // Disable caching for the files
-    fcntl(f, F_NOCACHE, 1);
-    fcntl(f1, F_NOCACHE, 1);
-    fcntl(f2, F_NOCACHE, 1);
+    f = open(name, O_WRONLY | O_SYNC);
+    f1 = open(f1_name, O_RDONLY | O_SYNC);
+    f2 = open(f2_name, O_RDONLY | O_SYNC);
 
     merge(f, f1, f2, k, a1, a2);
 
