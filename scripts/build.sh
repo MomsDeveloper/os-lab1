@@ -5,6 +5,7 @@ set -e
 SRC_DIR="src"
 INCLUDE_DIR="include"
 BIN_DIR="bin"
+TEST_DIR="test"
 
 mkdir -p $BIN_DIR
 
@@ -16,5 +17,7 @@ gcc -DBENCH2_MAIN -o $BIN_DIR/dedup $SRC_DIR/dedup.c -I$INCLUDE_DIR
 gcc -c -o $BIN_DIR/ema-sort-int.o $SRC_DIR/ema-sort-int.c -I$INCLUDE_DIR
 gcc -c -o $BIN_DIR/dedup.o $SRC_DIR/dedup.c -I$INCLUDE_DIR
 gcc -o $BIN_DIR/complex $SRC_DIR/complex.c $BIN_DIR/ema-sort-int.o $BIN_DIR/dedup.o -I$INCLUDE_DIR -pthread
+
+gcc -o $BIN_DIR/test $TEST_DIR/test.c $SRC_DIR/ema-sort-int.c $BIN_DIR/dedup.o -I$INCLUDE_DIR
 
 echo "Build complete"

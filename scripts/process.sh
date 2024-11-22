@@ -3,7 +3,7 @@
 DATA_DIR="data"
 
 # Define the number of files/processes
-n=4
+n=1
 
 mkdir -p $DATA_DIR
 

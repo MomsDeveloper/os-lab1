@@ -32,50 +32,95 @@ int open_file(char *name, int flags, mode_t permissions) {
   return f;
 }
 
-void merge(int f, int f1, int f2, int k, int a1, int a2) {
-  int i, j;
+#define BUFFER_SIZE 1024
 
-  ssize_t read_result_f1 = read(f1, &a1, sizeof(int));
-  ssize_t read_result_f2 = read(f2, &a2, sizeof(int));
 
-  while (read_result_f1 > 0 && read_result_f2 > 0) {
-    i = 0;
-    j = 0;
-    while (i < k && j < k && read_result_f1 > 0 && read_result_f2 > 0) {
-      if (a1 < a2) {
-        write(f, &a1, sizeof(int));
-        read_result_f1 = read(f1, &a1, sizeof(int));
-        i++;
-      } else {
-        write(f, &a2, sizeof(int));
-        read_result_f2 = read(f2, &a2, sizeof(int));
-        j++;
-      }
-    }
-    while (i < k && read_result_f1 > 0) {
-      write(f, &a1, sizeof(int));
-      read_result_f1 = read(f1, &a1, sizeof(int));
-      i++;
-    }
-    while (j < k && read_result_f2 > 0) {
-      write(f, &a2, sizeof(int));
-      read_result_f2 = read(f2, &a2, sizeof(int));
-      j++;
+
+int read_int(int f, int* buffer, int* a, size_t *i) {
+  if (*i % BUFFER_SIZE == 0) {
+    if (read(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
+      printf("read failed: i=%zu\n", *i);
+      return -1;
     }
   }
-  while (read_result_f1 > 0) {
-    write(f, &a1, sizeof(int));
-    read_result_f1 = read(f1, &a1, sizeof(int));
-  }
-  while (read_result_f2 > 0) {
-    write(f, &a2, sizeof(int));
-    read_result_f2 = read(f2, &a2, sizeof(int));
+  *a = buffer[*i % BUFFER_SIZE];
+  *i = *i + 1;
+  return 1;
+}
+
+void flash_int(int f, int* buffer){
+  if (write(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
+    printf("write failed\n");
   }
 }
 
+void write_int(int f, int* buffer, int a, int *i) {
+  buffer[*i % BUFFER_SIZE] = a;
+  if (*i % BUFFER_SIZE == 0 && *i != 0) {
+    flash_int(f, buffer);
+  }
+  *i = *i + 1;
+}
+
+void merge(int f, int f1, int f2, int k, int a1, int a2, size_t f1_size, size_t f2_size) {
+  f1_size = f1_size + 1;
+  f2_size = f2_size + 1;
+
+  size_t i, j;
+
+  size_t index_f1_read_buffer = 0;
+  size_t index_f2_read_buffer = 0;
+
+  size_t index_write_buffer = 0;
+
+  int buffer_read_f1[BUFFER_SIZE];
+  int buffer_read_f2[BUFFER_SIZE];
+
+  int buffer_write[BUFFER_SIZE];
+
+  size_t read_result_f1 = read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
+  size_t read_result_f2 = read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
+
+  while (index_f1_read_buffer < f1_size && index_f2_read_buffer < f2_size) {
+    i = 0;
+    j = 0;
+    while (i < k && j < k && index_f1_read_buffer < f1_size && index_f2_read_buffer < f2_size) {
+      if (a1 < a2) {
+        write_int(f, buffer_write, a1, &index_write_buffer);
+        read_result_f1 = read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
+        i++;
+      } else {
+        write_int(f, buffer_write, a2, &index_write_buffer);
+        read_result_f2 = read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
+        j++;
+      }
+    }
+    while (i < k && index_f1_read_buffer < f1_size) {
+      write_int(f, buffer_write, a1, &index_write_buffer);
+      read_result_f1 = read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
+      i++;
+    }
+    while (j < k && index_f2_read_buffer < f2_size) {
+      write_int(f, buffer_write, a2, &index_write_buffer);
+      read_result_f2 = read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
+      j++;
+    }
+  }
+  while (index_f1_read_buffer < f1_size) {
+    write_int(f, buffer_write, a1, &index_write_buffer);
+    read_result_f1 = read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
+  }
+  while (index_f2_read_buffer < f2_size) {
+    write_int(f, buffer_write, a2, &index_write_buffer);
+    read_result_f2 = read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
+  }
+
+  flash_int(f, buffer_write);
+}
+
 void simple_merging_sort(char *name) {
-  int a1, a2, kol, k;
-  kol = 0;
+  int a1, a2;
+  size_t kol, k;
 
   int f, f1, f2;
   char f1_name[256];
@@ -97,38 +142,57 @@ void simple_merging_sort(char *name) {
     f1 = open_file(f1_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     f2 = open_file(f2_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-    ssize_t read_result = read(f, &a1, sizeof(int));
+    size_t index_f_read_buffer = 0;
 
-    while (read_result > 0) {
-      for (int i = 0; i < k && read_result > 0; i++) {
-        write(f1, &a1, sizeof(int));
-        read_result = read(f, &a1, sizeof(int));
+    size_t index_f1_write_buffer = 0;
+    size_t index_f2_write_buffer = 0;
+
+    int buffer_read[BUFFER_SIZE];
+    int buffer_write_f1[BUFFER_SIZE];
+    int buffer_write_f2[BUFFER_SIZE];
+
+    size_t read_result = read_int(f, buffer_read, &a1, &index_f_read_buffer);
+
+    while (index_f_read_buffer < kol + 1) {
+      for (int i = 0; i < k && index_f_read_buffer < kol + 1; i++) {
+        printf("a1: %d\n", a1);
+        write_int(f1, buffer_write_f1, a1, &index_f1_write_buffer);
+        read_result = read_int(f, buffer_read, &a1, &index_f_read_buffer);
+        printf("a1: %d\n", a1);
       }
-      for (int j = 0; j < k && read_result > 0; j++) {
-        write(f2, &a1, sizeof(int));
-        read_result = read(f, &a1, sizeof(int));
+      for (int j = 0; j < k && index_f_read_buffer < kol + 1; j++) {
+        printf("a2: %d\n", a1);
+        write_int(f2, buffer_write_f2, a1, &index_f2_write_buffer);
+        read_result = read_int(f, buffer_read, &a1, &index_f_read_buffer);
+        printf("a2: %d\n", a1);
       }
+      
     }
+    flash_int(f1, buffer_write_f1);
+    flash_int(f2, buffer_write_f2);
+
     close(f1);
     close(f2);
     close(f);
 
-    f = open_file(name, O_WRONLY, 0);
-    f1 = open_file(f1_name, O_RDONLY, 0);
-    f2 = open_file(f2_name, O_RDONLY, 0);
+    // f = open_file(name, O_WRONLY, 0);
+    // f1 = open_file(f1_name, O_RDONLY, 0);
+    // f2 = open_file(f2_name, O_RDONLY, 0);
 
-    merge(f, f1, f2, k, a1, a2);
+    // merge(f, f1, f2, k, a1, a2, index_f1_write_buffer, index_f2_write_buffer);
 
-    close(f2);
-    close(f1);
-    close(f);
+    // close(f2);
+    // close(f1);
+    // close(f);
 
-    k = k * 2;
+    // k = k * 2;
+    k = 10000000;
   }
 
-  remove(f1_name);
-  remove(f2_name);
+  // remove(f1_name);
+  // remove(f2_name);
 }
+
 
 #ifdef BENCH1_MAIN
 int main(int argc, char *argv[]) {

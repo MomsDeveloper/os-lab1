@@ -1,0 +1,1 @@
+./profiling/run_profiling.sh ./bin/ema-sort-int ./profiling/ema-sort-int/fast_ordinary 1 

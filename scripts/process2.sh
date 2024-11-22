@@ -20,7 +20,7 @@ do
         filename="./data/file_${i}_${j}.bin"
         filenames+=("$filename")
 
-        python3 utils/generate_numbers.py 1024 "$filename"&
+        python3 utils/generate_numbers.py 4 "$filename"&
     done
 
     ./bin/complex $t 3000 "${filenames[@]}"&
