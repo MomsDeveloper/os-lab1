@@ -37,13 +37,19 @@ int open_file(char *name, int flags, mode_t permissions) {
 
 int read_int(int f, int* buffer, int* a, size_t *i) {
   if (*i % BUFFER_SIZE == 0) {
-    if (read(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
+    // if (read(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
+    //   printf("read failed: i=%zu\n", *i);
+    //   return -1;
+    // }
+    size_t read_result = read(f, buffer, BUFFER_SIZE * sizeof(int));
+    if (read_result < 0) {
       printf("read failed: i=%zu\n", *i);
       return -1;
     }
   }
   *a = buffer[*i % BUFFER_SIZE];
-  *i = *i + 1;
+  // *i = *i + 1;
+  (*i)++;
   return 1;
 }
 
@@ -54,18 +60,19 @@ void flash_int(int f, int* buffer){
 }
 
 void write_int(int f, int* buffer, int a, int *i) {
-  buffer[*i % BUFFER_SIZE] = a;
   if (*i % BUFFER_SIZE == 0 && *i != 0) {
     flash_int(f, buffer);
   }
-  *i = *i + 1;
+  buffer[*i % BUFFER_SIZE] = a;
+  // *i = *i + 1;
+  (*i)++;
 }
 
 void merge(int f, int f1, int f2, int k, int a1, int a2, size_t f1_size, size_t f2_size) {
-  f1_size = f1_size + 1;
-  f2_size = f2_size + 1;
+  f1_size++;
+  f2_size++;
 
-  size_t i, j;
+  size_t i = 0, j = 0;
 
   size_t index_f1_read_buffer = 0;
   size_t index_f2_read_buffer = 0;

@@ -16,7 +16,7 @@ mkdir -p $OUTPUT_PATH
 if [ $BENCHMARK_PROGRAMM_PATH == "./bin/ema-sort-int" ]; then
     python3 ./utils/generate_numbers.py 1 "$OUTPUT_PATH/file.bin"
     # add generated file to [benchmark_programm_arguments]
-    set -- "$OUTPUT_PATH/file.bin" "$@"
+    set -- "$@" "$OUTPUT_PATH/file.bin" 
 fi
 
 # check if benchmark programm exists
@@ -31,16 +31,19 @@ if [ ! -x $BENCHMARK_PROGRAMM_PATH ]; then
     exit 1
 fi
 
-
-perf stat -d -d -d -o $OUTPUT_PATH/perf_stat.txt $BENCHMARK_PROGRAMM_PATH $@
+perf stat -d -d -d -o $OUTPUT_PATH/perf_stat.txt -- $BENCHMARK_PROGRAMM_PATH $@
+echo "perf stat done"
 
 ltrace -c -o $OUTPUT_PATH/ltrace.txt $BENCHMARK_PROGRAMM_PATH $@
+echo "ltrace done"
 
 strace -c -o $OUTPUT_PATH/strace.txt $BENCHMARK_PROGRAMM_PATH $@
+echo "strace done"
 
 "$BENCHMARK_PROGRAMM_PATH" $@ &
 BENCHMARK_PROGRAMM_PID=$!
 top -b -n3 > $OUTPUT_PATH/top.txt
 wait $BENCHMARK_PROGRAMM_PID
+echo "top done"
 
 exit 0
