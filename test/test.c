@@ -26,7 +26,6 @@ void test_merge(){
     fclose(f);
 
     for (int i = 0; i < numbers_size; i++) {
-        printf("%d and %d\n", numbers_to_sort[i], numbers_sorted[i]);
         if (numbers_to_sort[i] != numbers_sorted[i]) {
             printf("* Ema-sort test failed\n");
             return;
