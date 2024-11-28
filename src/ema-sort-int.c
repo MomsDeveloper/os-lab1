@@ -56,6 +56,7 @@ int read_int(int f, int* buffer, int* a, size_t *i) {
 void flash_int(int f, int* buffer){
   if (write(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
     printf("write failed\n");
+    exit(1);
   }
 }
 
@@ -208,7 +209,7 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < number_of_iterations; i++) {
     simple_merging_sort(filename);
-    printf("Iteration %d done\n", i);
+    // printf("Iteration %d done\n", i);
   }
   return 0;
 }

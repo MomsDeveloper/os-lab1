@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
 
-    printf("Thread %d finished\n", i);
+    // printf("Thread %d finished\n", i);
   }
 
   free(arr);

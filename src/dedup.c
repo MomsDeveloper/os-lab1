@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     generate_array(arr, &kol);
     size_t temp_kol = kol;
     remove_duplicates(arr, &temp_kol);
-    printf("Iteration %d done\n", i);
+    // printf("Iteration %d done\n", i);
   }
 
   free(arr);
