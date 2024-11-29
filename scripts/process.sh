@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 DATA_DIR="data"
 

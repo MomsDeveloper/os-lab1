@@ -10,18 +10,6 @@ echo "---- Running profiling script for $1 ----"
 BENCHMARK_PROGRAMM_PATH=$1
 OUTPUT_PATH=$2
 shift 2
-if [ $BENCHMARK_PROGRAMM_PATH == "./bin/complex" ]; then
-    NUM_THREADS=$1
-
-    files=""
-    for i in $(seq 1 $NUM_THREADS); do
-        python3 ./utils/generate_numbers.py 1 "$OUTPUT_PATH/file$i.bin"
-        files="$files $OUTPUT_PATH/file$i.bin"
-    done
-    set -- "$@" $files
-
-fi
-
 
 # create output directory
 mkdir -p $OUTPUT_PATH
@@ -30,6 +18,16 @@ mkdir -p $OUTPUT_PATH
 if [ $BENCHMARK_PROGRAMM_PATH == "./bin/ema-sort-int" ]; then
     python3 ./utils/generate_numbers.py 1 "$OUTPUT_PATH/file.bin"
     set -- "$@" "$OUTPUT_PATH/file.bin" 
+elif [ $BENCHMARK_PROGRAMM_PATH == "./bin/complex" ]; then
+    NUM_THREADS=$1
+
+    files=()
+    for i in $(seq 1 $NUM_THREADS); do
+        python3 ./utils/generate_numbers.py 1 "$OUTPUT_PATH/file$i.bin"
+        files+=("$OUTPUT_PATH/file$i.bin")
+    done
+    set -- "$@" "${files[@]}"
+
 fi
 
 # check if benchmark programm exists
