@@ -45,4 +45,87 @@
     * [dedup.c](./src/dedup.c) - Дедупликация элементов в массиве
     * [complex.c](./src/complex.c) - Комплексная программа-нагрузчик, объединяющая две предыдущие программы в одну, реализованную при помощи потоков выполнения
 
+2. Профилирование программы `ema-sort-int`:
+    2.1  1 итерация исполнения, 1 MB данных:
+    * perf
+    ```
+               238.32 msec task-clock                       #    0.092 CPUs utilized             
+                18688      context-switches                 #   78.416 K/sec                     
+                   11      cpu-migrations                   #   46.157 /sec                      
+                  163      page-faults                      #  683.962 /sec                      
+      <not supported>      cycles                                                                
+      <not supported>      instructions                                                          
+      <not supported>      branches                                                              
+      <not supported>      branch-misses                                                         
+      <not supported>      L1-dcache-loads                                                       
+      <not supported>      L1-dcache-load-misses                                                 
+      <not supported>      LLC-loads                                                             
+      <not supported>      LLC-load-misses                                                       
+
+        2.579066293 seconds time elapsed
+
+        0.092570000 seconds user
+        0.212521000 seconds sys
+
+    ```
+
+    * top
+    ```
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+  43861 ubuntu    20   0   12188   5248   3200 S   9.1   0.3   0:34.26 top
+ 332076 ubuntu    20   0    2260   1152   1024 R   9.1   0.1   0:00.02 ema-sor+
+      1 root      20   0   21932  12388   8676 S   0.0   0.6   0:02.01 systemd
+    ```
+
+    * mpstat
+    ```
+    Average:     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+    Average:     all    0.33    0.00    0.98    0.00    0.00    0.00    0.00    0.00    0.00   98.70
+    Average:       0    0.33    0.00    0.98    0.00    0.00    0.00    0.00    0.00    0.00   98.69
+    Average:       1    0.33    0.00    0.98    0.00    0.00    0.00    0.00    0.00    0.00   98.70
+    Average:       2    0.00    0.00    0.98    0.00    0.00    0.00    0.00    0.00    0.00   99.02
+    Average:       3    0.65    0.00    0.97    0.00    0.00    0.00    0.00    0.00    0.00   98.38
+    ```
+
+3. Профилирование программы `dedup`:
+    3.1 1 итерация исполнения, 102400 элементов:
+    * perf
+    ```
+           6159.90 msec task-clock                       #    0.999 CPUs utilized             
+                20      context-switches                 #    3.247 /sec                      
+                 0      cpu-migrations                   #    0.000 /sec                      
+               145      page-faults                      #   23.539 /sec                      
+   <not supported>      cycles                                                                
+   <not supported>      instructions                                                          
+   <not supported>      branches                                                              
+   <not supported>      branch-misses                                                         
+   <not supported>      L1-dcache-loads                                                       
+   <not supported>      L1-dcache-load-misses                                                 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+       6.163559211 seconds time elapsed
+
+       6.160164000 seconds user
+       0.000000000 seconds sys
+    ```
+    * top
+    ```
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 332397 ubuntu    20   0    2656   1152    768 R 100.0   0.1   0:03.25 dedup
+    966 ubuntu    20   0   16428   6420   4736 S   0.3   0.3   0:27.19 sshd
+  38533 ubuntu    20   0   12188   5248   3200 S   0.3   0.3   0:33.79 top
+  86023 ubuntu    20   0   12184   5248   3200 S   0.3   0.3   0:31.49 top
+    ```
+    * mpstat
+    ```
+    02:24:11     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+    02:24:12     all    0.76    0.00    1.01    0.00    0.00    0.00    0.00    0.00    0.00   98.23
+    02:24:12       0    1.01    0.00    1.01    0.00    0.00    0.00    0.00    0.00    0.00   97.98
+    02:24:12       1    1.01    0.00    1.01    0.00    0.00    0.00    0.00    0.00    0.00   97.98
+    02:24:12       2    1.01    0.00    1.01    0.00    0.00    0.00    0.00    0.00    0.00   97.98
+    02:24:12       3    0.00    0.00    1.02    0.00    0.00    0.00    0.00    0.00    0.00   98.98
+    ```
+4. Профилирование программы `complex`:
+
     

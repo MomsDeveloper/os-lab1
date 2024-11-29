@@ -33,9 +33,10 @@ int open_file(char *name, int flags, mode_t permissions) {
 }
 
 #define BUFFER_SIZE 1024
-#define ALIGNMENT 512 // For `O_DIRECT`, 512-byte alignment is generally required
+#define ALIGNMENT                                                              \
+  512 // For `O_DIRECT`, 512-byte alignment is generally required
 
-int read_int(int f, int* buffer, int* a, size_t *i) {
+int read_int(int f, int *buffer, int *a, size_t *i) {
   if (*i % BUFFER_SIZE == 0) {
     // if (read(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
     //   printf("read failed: i=%zu\n", *i);
@@ -53,14 +54,14 @@ int read_int(int f, int* buffer, int* a, size_t *i) {
   return 1;
 }
 
-void flash_int(int f, int* buffer){
+void flash_int(int f, int *buffer) {
   if (write(f, buffer, BUFFER_SIZE * sizeof(int)) < 0) {
     printf("write failed\n");
     exit(1);
   }
 }
 
-void write_int(int f, int* buffer, int a, int *i) {
+void write_int(int f, int *buffer, int a, int *i) {
   if (*i % BUFFER_SIZE == 0 && *i != 0) {
     flash_int(f, buffer);
   }
@@ -69,7 +70,8 @@ void write_int(int f, int* buffer, int a, int *i) {
   (*i)++;
 }
 
-void merge(int f, int f1, int f2, int k, int a1, int a2, size_t f1_size, size_t f2_size) {
+void merge(int f, int f1, int f2, int k, int a1, int a2, size_t f1_size,
+           size_t f2_size) {
   f1_size++;
   f2_size++;
 
@@ -81,24 +83,31 @@ void merge(int f, int f1, int f2, int k, int a1, int a2, size_t f1_size, size_t 
   size_t index_write_buffer = 0;
 
   int *buffer_read_f1, *buffer_read_f2, *buffer_write;
-  posix_memalign((void**)&buffer_read_f1, ALIGNMENT, BUFFER_SIZE * sizeof(int));
-  posix_memalign((void**)&buffer_read_f2, ALIGNMENT, BUFFER_SIZE * sizeof(int));
-  posix_memalign((void**)&buffer_write, ALIGNMENT, BUFFER_SIZE * sizeof(int));
+  posix_memalign((void **)&buffer_read_f1, ALIGNMENT,
+                 BUFFER_SIZE * sizeof(int));
+  posix_memalign((void **)&buffer_read_f2, ALIGNMENT,
+                 BUFFER_SIZE * sizeof(int));
+  posix_memalign((void **)&buffer_write, ALIGNMENT, BUFFER_SIZE * sizeof(int));
 
-  size_t read_result_f1 = read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
-  size_t read_result_f2 = read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
+  size_t read_result_f1 =
+      read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
+  size_t read_result_f2 =
+      read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
 
   while (index_f1_read_buffer < f1_size && index_f2_read_buffer < f2_size) {
     i = 0;
     j = 0;
-    while (i < k && j < k && index_f1_read_buffer < f1_size && index_f2_read_buffer < f2_size) {
+    while (i < k && j < k && index_f1_read_buffer < f1_size &&
+           index_f2_read_buffer < f2_size) {
       if (a1 < a2) {
         write_int(f, buffer_write, a1, &index_write_buffer);
-        read_result_f1 = read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
+        read_result_f1 =
+            read_int(f1, buffer_read_f1, &a1, &index_f1_read_buffer);
         i++;
       } else {
         write_int(f, buffer_write, a2, &index_write_buffer);
-        read_result_f2 = read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
+        read_result_f2 =
+            read_int(f2, buffer_read_f2, &a2, &index_f2_read_buffer);
         j++;
       }
     }
@@ -155,9 +164,11 @@ void simple_merging_sort(char *name) {
     size_t index_f2_write_buffer = 0;
 
     int *buffer_read, *buffer_write_f1, *buffer_write_f2;
-    posix_memalign((void**)&buffer_read, ALIGNMENT, BUFFER_SIZE * sizeof(int));
-    posix_memalign((void**)&buffer_write_f1, ALIGNMENT, BUFFER_SIZE * sizeof(int));
-    posix_memalign((void**)&buffer_write_f2, ALIGNMENT, BUFFER_SIZE * sizeof(int));
+    posix_memalign((void **)&buffer_read, ALIGNMENT, BUFFER_SIZE * sizeof(int));
+    posix_memalign((void **)&buffer_write_f1, ALIGNMENT,
+                   BUFFER_SIZE * sizeof(int));
+    posix_memalign((void **)&buffer_write_f2, ALIGNMENT,
+                   BUFFER_SIZE * sizeof(int));
 
     size_t read_result = read_int(f, buffer_read, &a1, &index_f_read_buffer);
 
@@ -170,7 +181,6 @@ void simple_merging_sort(char *name) {
         write_int(f2, buffer_write_f2, a1, &index_f2_write_buffer);
         read_result = read_int(f, buffer_read, &a1, &index_f_read_buffer);
       }
-      
     }
     flash_int(f1, buffer_write_f1);
     flash_int(f2, buffer_write_f2);
@@ -195,7 +205,6 @@ void simple_merging_sort(char *name) {
   remove(f1_name);
   remove(f2_name);
 }
-
 
 #ifdef BENCH1_MAIN
 int main(int argc, char *argv[]) {

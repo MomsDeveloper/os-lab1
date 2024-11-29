@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-# Script to run multiple instances of a benchmark in parallel with profiling and optional file generation
 
 if [ $# -lt 3 ]; then
     echo "Usage: $0 <benchmark_programm_path> <output_path> <number_of_runs> [benchmark_programm_arguments]"
@@ -14,10 +13,10 @@ NUM_INSTANCES=$3
 shift 3
 
 if [ "$BENCHMARK_PROGRAM" == "./bin/complex" ]; then
-    # get number of threads
     NUM_THREADS=$1
     shift 1
 fi
+
 # Create the output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
 
@@ -45,7 +44,6 @@ run_single_benchmark() {
     mkdir -p "$INSTANCE_DIR"
 
     # Handle ema-sort-int: generate a unique input file for this instance
-    # local ADDITIONAL_ARGS=("$@")
     local ADDITIONAL_ARGS=()
     if [ "$BENCHMARK_PROGRAM" == "./bin/ema-sort-int" ]; then
         local INPUT_FILE="$(realpath "$INSTANCE_DIR/file.bin")"
@@ -88,8 +86,7 @@ run_single_benchmark() {
 
     echo "Starting benchmark instance $INSTANCE_ID..."
     
-    # Run profiling tools and redirect output to instance-specific logs
-    perf stat -d -d -d -o "$INSTANCE_DIR/perf.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
+    perf stat -d -o "$INSTANCE_DIR/perf.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
     # ltrace -c -o "$INSTANCE_DIR/ltrace.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
     # strace -c -o "$INSTANCE_DIR/strace.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
 
@@ -103,7 +100,6 @@ export -f run_single_benchmark
 export BENCHMARK_PROGRAM
 export OUTPUT_DIR
 
-# Start top profiling in the background
 echo "Starting system-wide top profiling..."
 top -b > "$OUTPUT_DIR/top.log" &
 TOP_PID=$!
@@ -112,7 +108,6 @@ echo "Mpstat started"
 mpstat -P ALL 1 > "$OUTPUT_DIR/mpstat.log" &
 MPSTAT_PID=$!
 
-# Run benchmark instances in parallel
 echo "Launching $NUM_INSTANCES benchmark instances..."
 pids=()
 for i in $(seq 1 "$NUM_INSTANCES"); do
@@ -124,11 +119,9 @@ done
 wait "${pids[@]}"
 
 
-# Stop top profiling
 echo "Terminating top profiling..."
 kill "$TOP_PID"
 
-# Stop mpstat
 echo "Terminating mpstat..."
 kill "$MPSTAT_PID"
 
