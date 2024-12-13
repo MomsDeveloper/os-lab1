@@ -1,0 +1,22 @@
+# started on Thu Dec 12 21:16:28 2024
+
+
+ Performance counter stats for './bin/ema-sort-int 1 /root/os-lab1/profiling/ema-sort-int/agressive_parallel/instance_1/file.bin':
+
+          3,111.05 msec task-clock                       #    0.331 CPUs utilized             
+            21,730      context-switches                 #    6.985 K/sec                     
+        68,879,447      cache-misses                     #   51.35% of all cache refs         
+       134,148,651      cache-references                 #   43.120 M/sec                     
+     1,051,076,061      instructions                     #    0.50  insn per cycle            
+     2,113,645,847      cycles                           #    0.679 GHz                       
+       378,843,623      L1-dcache-loads                  #  121.773 M/sec                     
+                 0      L1-dcache-load-misses                                                 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+       9.390903083 seconds time elapsed
+
+       0.094785000 seconds user
+       2.918397000 seconds sys
+
+

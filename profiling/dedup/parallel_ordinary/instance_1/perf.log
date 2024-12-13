@@ -1,0 +1,22 @@
+# started on Thu Dec 12 18:46:27 2024
+
+
+ Performance counter stats for './bin/dedup 1 40000':
+
+          2,482.63 msec task-clock                       #    0.923 CPUs utilized             
+               204      context-switches                 #   82.171 /sec                      
+         2,963,144      cache-misses                     #    8.49% of all cache refs         
+        34,907,430      cache-references                 #   14.061 M/sec                     
+     6,915,516,041      instructions                     #    0.89  insn per cycle            
+     7,739,721,039      cycles                           #    3.118 GHz                       
+     2,617,714,734      L1-dcache-loads                  #    1.054 G/sec                     
+                 0      L1-dcache-load-misses                                                 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+       2.690130403 seconds time elapsed
+
+       2.448250000 seconds user
+       0.024894000 seconds sys
+
+

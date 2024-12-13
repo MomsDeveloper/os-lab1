@@ -1,0 +1,20 @@
+# started on Thu Dec 12 17:13:05 2024
+
+
+ Performance counter stats for './bin/complex 1 50000 /root/os-lab1/profiling/complex/parallel_ordinary/instance_3/file1.bin':
+
+        66,798,052      cache-misses                     #   32.40% of all cache refs         
+       206,158,249      cache-references                                                      
+    12,420,008,787      instructions                     #    0.82  insn per cycle            
+    15,110,476,871      cycles                                                                
+     4,782,533,557      L1-dcache-loads                                                       
+        22,281,243      L1-dcache-load-misses            #    0.47% of all L1-dcache accesses 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+      22.059706156 seconds time elapsed
+
+       4.619422000 seconds user
+       3.255501000 seconds sys
+
+

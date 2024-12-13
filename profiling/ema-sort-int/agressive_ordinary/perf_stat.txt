@@ -1,0 +1,22 @@
+# started on Thu Dec 12 19:48:39 2024
+
+
+ Performance counter stats for './bin/ema-sort-int 1 ./profiling/ema-sort-int/agressive_ordinary/file.bin':
+
+          2,700.16 msec task-clock                       #    0.499 CPUs utilized             
+            18,649      context-switches                 #    6.907 K/sec                     
+        61,665,882      cache-misses                     #   54.04% of all cache refs         
+       114,102,526      cache-references                 #   42.258 M/sec                     
+       895,912,991      instructions                     #    0.51  insn per cycle            
+     1,760,990,628      cycles                           #    0.652 GHz                       
+       316,241,577      L1-dcache-loads                  #  117.120 M/sec                     
+                 0      L1-dcache-load-misses                                                 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+       5.415306172 seconds time elapsed
+
+       0.085334000 seconds user
+       1.954265000 seconds sys
+
+

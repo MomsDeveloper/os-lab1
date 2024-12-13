@@ -86,9 +86,10 @@ run_single_benchmark() {
 
     echo "Starting benchmark instance $INSTANCE_ID..."
     
-    perf stat -d -o "$INSTANCE_DIR/perf.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
-    # ltrace -c -o "$INSTANCE_DIR/ltrace.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
-    # strace -c -o "$INSTANCE_DIR/strace.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
+    # perf stat -d -o "$INSTANCE_DIR/perf.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
+    perf stat -d -e task-clock,context-switches,cache-misses,cache-references,instructions,cycles -o "$INSTANCE_DIR/perf.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
+    ltrace -c -o "$INSTANCE_DIR/ltrace.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
+    strace -c -o "$INSTANCE_DIR/strace.log" "$BENCHMARK_PROGRAM" "${ADDITIONAL_ARGS[@]}"
 
     # Wait for profiling commands to complete
     wait

@@ -1,0 +1,20 @@
+# started on Thu Dec 12 17:03:49 2024
+
+
+ Performance counter stats for './bin/ema-sort-int 1 /root/os-lab1/profiling/ema-sort-int/parallel_ordinary/instance_4/file.bin':
+
+        72,416,476      cache-misses                     #   50.78% of all cache refs         
+       142,621,180      cache-references                                                      
+     1,664,834,831      instructions                     #    0.54  insn per cycle            
+     3,095,887,244      cycles                                                                
+       722,784,587      L1-dcache-loads                                                       
+            61,568      L1-dcache-load-misses            #    0.01% of all L1-dcache accesses 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+      35.644634081 seconds time elapsed
+
+       0.276663000 seconds user
+       3.434006000 seconds sys
+
+

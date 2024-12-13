@@ -41,8 +41,12 @@ if [ ! -x $BENCHMARK_PROGRAMM_PATH ]; then
     exit 1
 fi
 
-perf stat -d -o $OUTPUT_PATH/perf_stat.txt -- $BENCHMARK_PROGRAMM_PATH $@
+# perf stat -d -o $OUTPUT_PATH/perf_stat.txt -- $BENCHMARK_PROGRAMM_PATH $@
+perf stat -d -e task-clock,context-switches,cache-misses,cache-references,instructions,cycles -o $OUTPUT_PATH/perf_stat.txt $BENCHMARK_PROGRAMM_PATH $@
 echo "perf stat done"
+ltrace -c -o $OUTPUT_PATH/ltrace.txt $BENCHMARK_PROGRAMM_PATH $@
+echo "ltrace done"
+strace -c -o $OUTPUT_PATH/strace.txt $BENCHMARK_PROGRAMM_PATH $@
 
 
 "$BENCHMARK_PROGRAMM_PATH" $@ &
@@ -52,5 +56,8 @@ top -b -n3 > $OUTPUT_PATH/top.txt
 wait $BENCHMARK_PROGRAMM_PID
 echo "top done"
 
+"$BENCHMARK_PROGRAMM_PATH" $@ &
+BENCHMARK_PROGRAMM_PID=$!
 mpstat -P ALL 1 3 > $OUTPUT_PATH/mpstat.txt
+wait $BENCHMARK_PROGRAMM_PID
 echo "mpstat done"
