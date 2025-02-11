@@ -1,0 +1,22 @@
+# started on Thu Dec 12 21:17:05 2024
+
+
+ Performance counter stats for './bin/complex 1 40000 /root/os-lab1/profiling/complex/agressive_parallel/instance_1/file1.bin':
+
+          3,387.75 msec task-clock                       #    0.404 CPUs utilized             
+            20,744      context-switches                 #    6.123 K/sec                     
+        69,477,871      cache-misses                     #   46.01% of all cache refs         
+       151,019,992      cache-references                 #   44.578 M/sec                     
+     3,821,342,002      instructions                     #    1.26  insn per cycle            
+     3,024,873,984      cycles                           #    0.893 GHz                       
+     1,576,721,162      L1-dcache-loads                  #  465.418 M/sec                     
+           357,398      L1-dcache-load-misses            #    0.02% of all L1-dcache accesses 
+   <not supported>      LLC-loads                                                             
+   <not supported>      LLC-load-misses                                                       
+
+       8.387772533 seconds time elapsed
+
+       0.467231000 seconds user
+       2.513282000 seconds sys
+
+
